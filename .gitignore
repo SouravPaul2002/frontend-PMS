@@ -73,3 +73,14 @@ yarn-error.log
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# Ruby Bundler local config (contains machine-specific paths)
+.bundle/
+
+# Environment variables / secrets
+.env
+.env.*
+!.env.example
+
+# Editor settings (VS Code workspace preferences are machine-specific)
+.vscode/
