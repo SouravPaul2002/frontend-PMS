@@ -145,6 +145,10 @@ export default function ScanScreen() {
 
     } catch (e) {
       console.log(e);
+      Alert.alert(
+        'Upload Failed',
+        'Some files could not be uploaded. Please check your connection and try again.'
+      );
     }
   };
 

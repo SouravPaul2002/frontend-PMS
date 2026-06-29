@@ -5,6 +5,7 @@ const SUPPORTED_EXTENSIONS = [
   'jpg',
   'jpeg',
   'png',
+  'webp',
   'txt',
   'docx',
   'pptx',

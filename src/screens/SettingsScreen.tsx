@@ -163,7 +163,16 @@ export default function SettingsScreen() {
 
     loadTheme();
 
-    checkBackendStatus();
+    // Wait for the persisted settings store to rehydrate before checking
+    // backend status, so we use the saved serverUrl rather than the default.
+    if (useSettingsStore.persist.hasHydrated()) {
+      checkBackendStatus();
+    } else {
+      const unsub = useSettingsStore.persist.onFinishHydration(() => {
+        checkBackendStatus();
+        unsub();
+      });
+    }
 
     const interval =
       setInterval(

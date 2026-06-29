@@ -13,7 +13,7 @@ import { colors, spacing, typography } from '../theme';
 import {
   useHistoryStore
 }
-  from '../store/historyStore';
+  from '../store/stores';
 
 export default function HomeScreen() {
   const navigation = useNavigation<any>();
@@ -26,27 +26,24 @@ export default function HomeScreen() {
   } = useSearchStore();
 
   const {
-    history,
-    loadHistory,
-    addHistory,
+    entries,
+    addEntry,
     clearHistory,
   } = useHistoryStore();
 
   const handleSearch = async (text: string) => {
-    await search(text);
+    const trimmed = text.trim();
+    if (!trimmed) return;
 
-    if (!query.trim()) {
-      return;
-    }
-
-    addHistory(query);
+    await search(trimmed);
+    addEntry(trimmed, null);
 
     navigation.navigate(
       'SearchResults'
     );
   };
   useEffect(() => {
-    loadHistory();
+    // persist middleware auto-rehydrates; no manual loadHistory needed
   }, []);
 
   return (
@@ -104,19 +101,19 @@ export default function HomeScreen() {
 
         </View>
 
-        {history.map(
-          (item, index) => (
+        {entries.map(
+          (entry, index) => (
 
             <TouchableOpacity
               key={index}
               onPress={() => {
 
-                setQuery(item);
+                setQuery(entry.text);
 
                 navigation.navigate(
                   'SearchResults',
                   {
-                    query: item,
+                    query: entry.text,
                   }
                 );
               }}
@@ -133,7 +130,7 @@ export default function HomeScreen() {
                   color: colors.text,
                 }}
               >
-                🔍 {item}
+                🔍 {entry.text}
               </Text>
 
             </TouchableOpacity>

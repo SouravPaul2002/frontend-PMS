@@ -8,7 +8,6 @@ import {
   Platform,
 } from 'react-native';
 import { colors, spacing, radii, typography } from '../theme';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 interface Props {
   value: string;
