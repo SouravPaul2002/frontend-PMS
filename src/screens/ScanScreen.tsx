@@ -19,6 +19,7 @@ import { pickDirectory } from '@react-native-documents/picker';
 import { FileSystem } from 'react-native-file-access';
 import { colors, radii, spacing, typography } from '../theme';
 import client from '../api/client';
+import { useSettingsStore } from '../store/stores';
 
 
 
@@ -27,6 +28,7 @@ export default function ScanScreen() {
   const [status, setStatus] = useState<any>(null);
   const [running, setRunning] = useState(false);
   const [selectedFolder, setSelectedFolder] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const uploadFolder = async () => {
     try {
@@ -35,7 +37,7 @@ export default function ScanScreen() {
 
       if (!folder) {
 
-        folder = await pickDirectory();
+        folder = await pickDirectory({ requestLongTermAccess: true });
 
         if (!folder) {
           return;
@@ -187,8 +189,10 @@ export default function ScanScreen() {
       console.log('STATUS DATA:', data);
 
       setStatus(data);
-    } catch (error) {
-      console.log('STATUS ERROR:', error);
+      setError(null);
+    } catch (err: any) {
+      console.log('STATUS ERROR:', err);
+      setError(err?.message ?? 'Cannot reach server.');
     }
   };
 
@@ -230,6 +234,29 @@ export default function ScanScreen() {
     }
   };
 
+  if (error && !status) {
+    const currentUrl = useSettingsStore.getState().serverUrl;
+    return (
+      <View style={styles.center}>
+        <Text style={[styles.text, { color: '#FF4A4A', fontSize: 18, fontWeight: 'bold', marginBottom: 10 }]}>
+          ⚠️ Connection Error
+        </Text>
+        <Text style={[styles.text, { color: '#A0A0B0', marginBottom: 20, textAlign: 'center', paddingHorizontal: 30 }]}>
+          {error}
+        </Text>
+        <Text style={[styles.text, { color: '#808090', fontSize: 13, marginBottom: 30 }]}>
+          URL: {currentUrl}
+        </Text>
+        <TouchableOpacity
+          style={[styles.button, { width: 200, marginTop: 0 }]}
+          onPress={loadStatus}
+        >
+          <Text style={styles.buttonText}>Retry</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
   if (!status) {
     return (
       <View style={styles.center}>
@@ -265,8 +292,7 @@ export default function ScanScreen() {
         style={styles.button}
         onPress={async () => {
 
-          const folder =
-            await pickDirectory();
+          const folder = await pickDirectory({ requestLongTermAccess: true });
 
           if (!folder) {
             return;
@@ -353,11 +379,24 @@ export default function ScanScreen() {
 
         <Text style={styles.value}>
           {
-            status.last_scan_time
-              ? new Date(
-                status.last_scan_time
-              ).toLocaleString()
-              : 'Never'
+            (() => {
+              const timeStr = status.last_scan_time;
+              if (!timeStr) return 'Never';
+              try {
+                const parsedDate = new Date(timeStr);
+                if (!isNaN(parsedDate.getTime())) {
+                  return parsedDate.toLocaleString();
+                }
+              } catch (e) {}
+              
+              if (typeof timeStr === 'string' && timeStr.includes('T')) {
+                const parts = timeStr.split('T');
+                const datePart = parts[0];
+                const timePart = parts[1].split('.')[0];
+                return `${datePart} ${timePart}`;
+              }
+              return String(timeStr);
+            })()
           }
         </Text>
 

@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Alert,
   ScrollView,
+  TextInput,
 } from 'react-native';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -28,7 +29,12 @@ export default function SettingsScreen() {
     setTheme
   } = useThemeStore();
 
-  const { serverUrl } = useSettingsStore();
+  const { serverUrl, setServerUrl } = useSettingsStore();
+  const [urlInput, setUrlInput] = useState(serverUrl);
+
+  useEffect(() => {
+    setUrlInput(serverUrl);
+  }, [serverUrl]);
 
   const [backendConnected, setBackendConnected] =
     useState(false);
@@ -286,6 +292,62 @@ export default function SettingsScreen() {
               : '🔴 Disconnected'
           }
         </Text>
+      </View>
+
+      <View
+        style={[
+          styles.card,
+          {
+            backgroundColor:
+              currentTheme.card,
+          },
+        ]}
+      >
+        <Text
+          style={[
+            styles.label,
+            {
+              color:
+                currentTheme.secondaryText,
+            },
+          ]}
+        >
+          Server URL
+        </Text>
+        <TextInput
+          style={[
+            styles.input,
+            {
+              color: currentTheme.text,
+              backgroundColor: currentTheme.background,
+              marginTop: spacing.xs,
+              paddingHorizontal: spacing.sm,
+              borderRadius: radii.sm,
+            }
+          ]}
+          value={urlInput}
+          onChangeText={setUrlInput}
+          placeholder="http://192.168.0.105:8000"
+          placeholderTextColor={currentTheme.secondaryText}
+          autoCapitalize="none"
+          autoCorrect={false}
+        />
+        <TouchableOpacity
+          style={[
+            styles.button,
+            {
+              marginTop: spacing.md,
+              backgroundColor: currentTheme.primary,
+            }
+          ]}
+          onPress={() => {
+            setServerUrl(urlInput);
+            Alert.alert('Success', 'Server URL updated.');
+            checkBackendStatus();
+          }}
+        >
+          <Text style={styles.buttonText}>Save URL</Text>
+        </TouchableOpacity>
       </View>
 
       <View

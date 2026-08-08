@@ -14,3 +14,13 @@ export const startIncrementalScan = async () => {
   const response = await client.post('/scan/incremental');
   return response.data;
 };
+
+export const fetchScanStatus = getStatus;
+
+export const startScan = async (mode: 'full' | 'incremental') => {
+  if (mode === 'full') {
+    return startFullScan();
+  } else {
+    return startIncrementalScan();
+  }
+};

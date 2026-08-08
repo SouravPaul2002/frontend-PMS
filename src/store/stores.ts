@@ -88,6 +88,7 @@ import { create as createSettings } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { setServerUrlGetter } from '../api/client';
+import { setFileServerUrlGetter } from '../utils/openAndroidFile';
 
 interface SettingsState {
   serverUrl: string;
@@ -101,14 +102,15 @@ interface SettingsState {
 export const useSettingsStore = createSettings<SettingsState>()(
   persist(
     (set, get) => ({
-      serverUrl: 'http://192.168.1.101:8000',
+      serverUrl: 'http://192.168.0.105:8000',
       theme: 'dark',
       onboardingDone: false,
 
       setServerUrl: url => {
         set({ serverUrl: url });
-        // Keep the client getter in sync
+        // Keep the client getter and file opener in sync
         setServerUrlGetter(() => get().serverUrl);
+        setFileServerUrlGetter(() => get().serverUrl);
       },
       setTheme: t => set({ theme: t }),
       completeOnboarding: () => set({ onboardingDone: true }),
@@ -118,7 +120,10 @@ export const useSettingsStore = createSettings<SettingsState>()(
       storage: createJSONStorage(() => AsyncStorage),
       onRehydrateStorage: () => state => {
         // After rehydration, sync client URL getter
-        if (state) setServerUrlGetter(() => state.serverUrl);
+        if (state) {
+          setServerUrlGetter(() => state.serverUrl);
+          setFileServerUrlGetter(() => state.serverUrl);
+        }
       },
     }
   )

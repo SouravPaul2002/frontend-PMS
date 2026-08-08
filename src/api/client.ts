@@ -2,7 +2,7 @@ import axios, { AxiosInstance, CancelTokenSource } from 'axios';
 import { ApiError } from './types';
 
 // We lazy-import the store to avoid circular deps
-let getServerUrl: () => string = () => 'http://192.168.0.101:8000';
+let getServerUrl: () => string = () => 'http://192.168.0.105:8000';
 
 export const setServerUrlGetter = (fn: () => string) => {
   getServerUrl = fn;
@@ -16,13 +16,18 @@ const client: AxiosInstance = axios.create({
 // Inject base URL dynamically from settings store on every request
 client.interceptors.request.use(config => {
   config.baseURL = getServerUrl();
+  console.log(`[AXIOS] Requesting: ${config.baseURL}${config.url}`);
   return config;
 });
 
 // Normalize all errors to ApiError shape
 client.interceptors.response.use(
-  res => res,
+  res => {
+    console.log(`[AXIOS] Success: status=${res.status}, url=${res.config.url}`);
+    return res;
+  },
   err => {
+    console.log(`[AXIOS] Error: message=${err.message}, code=${err.code}, url=${err.config?.url}`);
     const apiError: ApiError = {
       message:
         err.response?.data?.detail ??

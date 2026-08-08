@@ -22,7 +22,7 @@ const getFileType = (item: any): string => {
 
 export default function SearchResultsScreen() {
   const navigation = useNavigation<any>();
-  const { results, isLoading } = useSearchStore();
+  const { results, isLoading, error, search, query } = useSearchStore();
 
   if (isLoading) {
     return (
@@ -30,6 +30,29 @@ export default function SearchResultsScreen() {
         <Text style={styles.loadingText}>
           Searching...
         </Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.center}>
+        <Text style={[styles.loadingText, { color: '#FF4A4A', marginBottom: 20, textAlign: 'center', paddingHorizontal: 20 }]}>
+          ⚠️ {error}
+        </Text>
+        <TouchableOpacity
+          style={{
+            backgroundColor: colors.primary,
+            padding: spacing.md,
+            borderRadius: radii.md,
+            alignItems: 'center',
+          }}
+          onPress={() => {
+            if (query) search(query);
+          }}
+        >
+          <Text style={{ color: colors.text, fontWeight: 'bold' }}>Retry Search</Text>
+        </TouchableOpacity>
       </View>
     );
   }
