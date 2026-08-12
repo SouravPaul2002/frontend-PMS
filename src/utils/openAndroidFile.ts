@@ -63,7 +63,7 @@ export const openAndroidFile = async (
     await FileViewer.open(cachePath, {
       showOpenWithDialog: true,
       mimeType,
-    });
+    } as any);
 
     console.log('FILE OPENED');
 

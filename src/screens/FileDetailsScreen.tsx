@@ -17,7 +17,7 @@ const getFileType = (result: any): string => {
   if (result.file_type) {
     return result.file_type;
   }
-  const path = result.path || '';
+  const path = result.file_path || result.path || '';
   const match = path.match(/\.([a-zA-Z0-9]+)$/);
   return match ? match[1] : '';
 };
@@ -50,6 +50,16 @@ export default function FileDetailsScreen() {
 
       <View style={styles.card}>
         <Text style={styles.label}>
+          Path
+        </Text>
+
+        <Text style={styles.value}>
+          {result.file_path || result.path}
+        </Text>
+      </View>
+
+      <View style={styles.card}>
+        <Text style={styles.label}>
           File Size
         </Text>
 
@@ -74,7 +84,7 @@ export default function FileDetailsScreen() {
         style={styles.openButton}
         onPress={() =>
           openAndroidFile(
-            result.original_uri,
+            result.file_path || result.path,
             result.file_name
           )
         }
